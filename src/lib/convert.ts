@@ -14,5 +14,10 @@ export const secondsToMinutes = (n: number) => {
     const minutes = Math.trunc(n / 60);
     n = n - (minutes * 60)
 
-    return `${minutes}:${n.toFixed(2)}`
+    let leftPad = "";
+    if (n < 10) {
+        leftPad = "0"
+    }
+
+    return `${minutes}:${leftPad}${n.toFixed(2)}`
 }

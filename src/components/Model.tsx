@@ -1,16 +1,24 @@
 import type {ModelProps} from "./Model.types.ts";
 import {ContentContainer} from "../lib/styled.tsx";
-import {styled, Typography} from "@mui/material";
+import {Button, Dialog, DialogActions, DialogContent, DialogContentText, styled, Typography} from "@mui/material";
 import {secondsToMinutes} from "../lib/convert.ts";
+import {useState} from "react";
 
 const BaseContainer = styled(ContentContainer)`
     flex: 2;
     flex-direction: column;
+    margin-top: -15px;
 `
 
 const ContentColumn = styled('div')`
     display: flex;
     justify-content: space-evenly;
+
+    @media screen and (max-width: 768px) {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
 `
 
 const MeetTitle = styled(Typography)`
@@ -24,16 +32,50 @@ const ImageGrid = styled('div')`
     padding: 20px;
 `
 
+const chartDescriptions = {
+    "dist": "This shows the calculated distribution of predicted times (logarithmic scale). The red distribution is predicted for championship swims, and the blue distribution is predicted for dual meets. A wider peak means that the model is less confident in its predicted time.",
+    "res": "The residuals show systemic over/underprediction of the model. It's probable that your model will have negative residuals at lower values and positive residuals at higher ones. This means the model predicts more conservatively to your mean time. It is unlikely for the model to predict a major outlier as your time, meaning that with training you can beat expectations.",
+    "trace": "These distributions show the posterior of the model after running a MCMC simulation. Theta is your predicted \"real\" time, delta is the percent drop observed between championship and dual meets, sigma is the variation between meets, and p is the probability of a meet being a championship."
+}
+
+interface ChartProps {
+    image: string,
+    width: number,
+    description: string | undefined
+}
+
+const Chart = ({image, width, description}: ChartProps) => {
+    const [open, setOpen] = useState(false);
+
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
+
+    return <>
+        <img onClick={handleOpen} width={width} src={"data:image/png;base64,"+image}/>
+        <Dialog open={open} onClose={handleClose} scroll={'paper'}>
+            <DialogContent>
+                <img width={width * 2} src={"data:image/png;base64,"+image}/>
+                <DialogContentText>
+                    {description}
+                </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={handleClose}>Dismiss</Button>
+            </DialogActions>
+        </Dialog>
+    </>
+}
+
 
 export const Model = ({promise}: ModelProps) => {
     if (promise == null) {
-        return <BaseContainer>hello</BaseContainer>
+        return <BaseContainer>Waiting for times...</BaseContainer>
     }
 
     const data = promise.read();
 
     if (data == null) {
-        return <BaseContainer>hello</BaseContainer>
+        return <BaseContainer>Waiting for times...</BaseContainer>
     }
 
     const targets = (data.championship.target != -1) ? [
@@ -61,9 +103,9 @@ export const Model = ({promise}: ModelProps) => {
             </div>
         </ContentColumn>
         <ImageGrid>
-            <img width={256} src={"data:image/png;base64,"+data.dist}/>
-            <img width={256} src={"data:image/png;base64,"+data.res}/>
-            <img width={256} src={"data:image/png;base64,"+data.trace}/>
+            <Chart width={256} image={data.dist} description={chartDescriptions['dist']}/>
+            <Chart width={256} image={data.res} description={chartDescriptions['res']}/>
+            <Chart width={256} image={data.trace} description={chartDescriptions['trace']}/>
         </ImageGrid>
     </BaseContainer>
 }

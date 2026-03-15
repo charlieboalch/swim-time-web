@@ -8,11 +8,20 @@ const TimeContainer = styled(ContentContainer)`
     @media screen and (max-width: 1080px) {
         flex-direction: column-reverse;
     }
+
+    @media screen and (max-width: 768px) {
+        width: 100%;
+    }
 `
 
 const TimesInput = styled(TextField)`
     display: flex;
     flex: 1;
+
+    @media screen and (max-width: 768px) {
+        padding: 10px;
+        
+    }
 `
 
 const ParamsInput = styled('div')`
@@ -23,6 +32,12 @@ const ParamsInput = styled('div')`
     height: min-content;
     justify-content: space-between;
     flex: 1;
+
+    @media screen and (max-width: 768px) {
+        width: 90%;
+        padding: 20px;
+        margin-top: 10%;
+    }
 `
 
 const meetRatios = {
@@ -65,7 +80,7 @@ export const TimeInput = ({callback}: TimeInputProps) => {
 
         const request: TimeRequest = {
             times: times.split("\n").map(e => minutesToSeconds(e)),
-            target: (target != '') ? Number(target.trim()) : null,
+            target: (target != '') ? Number(minutesToSeconds(target.trim())) : null,
             params: hyperparams
         }
 
@@ -78,7 +93,8 @@ export const TimeInput = ({callback}: TimeInputProps) => {
                         setTimes(e.target.value)}
                     label={"Swim Times"}
                     multiline={true}
-                    minRows={10} />
+                    minRows={12}
+                    maxRows={12}/>
         <ParamsInput>
             <Typography variant={'body1'}>Tech suit time drop: {Math.trunc(delta * 100)}%</Typography>
             <Slider
