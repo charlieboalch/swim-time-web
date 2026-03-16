@@ -22,6 +22,7 @@ import {ContentContainer} from "./lib/styled.tsx";
 import {GrCircleQuestion, GrTime} from "react-icons/gr";
 import { IoMdClose } from "react-icons/io";
 import {getWindowSize} from "./lib/hooks.tsx";
+import {getApi} from "./lib/environment.ts";
 
 const Content = styled('div')`
     display: flex;
@@ -108,7 +109,7 @@ export const App = () => {
             return null
         }
 
-        const res = await fetch("http://127.0.0.1:8000/predict", {
+        const res = await fetch(getApi(), {
             method: "POST",
             body: JSON.stringify(timeData),
             headers: {
